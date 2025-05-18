@@ -3,6 +3,7 @@ package org.amir.ces.service;
 import lombok.RequiredArgsConstructor;
 import org.amir.ces.dto.RegisterUserDto;
 import org.amir.ces.dto.UpdateUserDto;
+import org.amir.ces.dto.UserResponseDto;
 import org.amir.ces.exception.BadRequestException;
 import org.amir.ces.helper.PasswordGenerator;
 import org.amir.ces.model.Agency;
@@ -71,7 +72,16 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserResponseDto> getAllUsers() {
+        List<User> users = userRepository.findAll();
+        return users.stream()
+                .map(user -> UserResponseDto.builder()
+                        .firstName(user.getFirstName())
+                        .lastName(user.getLastName())
+                        .email(user.getEmail())
+                        .role(user.getRole().toString())
+                        .agency(user.getAgency().getName())
+                        .build())
+                .toList();
     }
 }
