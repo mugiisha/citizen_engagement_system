@@ -3,6 +3,7 @@ package org.amir.ces.service;
 import jakarta.validation.constraints.Email;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.amir.ces.dto.AnalyticsResponseDto;
 import org.amir.ces.dto.CreateTicketDto;
 import org.amir.ces.dto.RespondToTicketDto;
 import org.amir.ces.exception.BadRequestException;
@@ -135,6 +136,24 @@ public class TicketService {
         return ticket;
     }
 
+    public AnalyticsResponseDto getTicketAnalytics(String email, String role) {
+        Role userRole = Role.valueOf(role.split("_")[1]);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        List<Ticket> tickets;
+
+        if(Role.ADMIN.equals(userRole)){
+            tickets = ticketRepository.findAll();
+        }else{
+            tickets = ticketRepository.findByAssignedAgencyId(user.getAgency().getId());
+        }
+
+        return formatAnalyticsResponse(tickets);
+
+    }
+
     @Transactional
     protected String generateReferenceNumber() {
         // Get or create sequence
@@ -158,5 +177,20 @@ public class TicketService {
                 .filter(user -> Arrays.asList(Role.MANAGER, Role.ADMIN).contains(user.getRole()))
                 .map(User::getEmail)
                 .toList();
+    }
+
+
+    public AnalyticsResponseDto formatAnalyticsResponse(List<Ticket> tickets) {
+        int totalTickets = tickets.size();
+        int totalFeedbackTickets = (int) tickets.stream().filter(ticket -> ticket.getType() == TicketType.FEEDBACK).count();
+        int totalComplaintTickets = (int) tickets.stream().filter(ticket -> ticket.getType() == TicketType.COMPLAINT).count();
+        int totalAddressedTickets = (int) tickets.stream().filter(ticket -> ticket.getStatus() != TicketStatus.SUBMITTED).count();
+
+        return AnalyticsResponseDto.builder()
+                .totalTickets(totalTickets)
+                .totalComplaintTickets(totalComplaintTickets)
+                .totalFeedbackTickets(totalFeedbackTickets)
+                .totalAddressedTickets(totalAddressedTickets)
+                .build();
     }
 }

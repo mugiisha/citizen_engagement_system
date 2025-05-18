@@ -2,6 +2,7 @@ package org.amir.ces.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.amir.ces.dto.AnalyticsResponseDto;
 import org.amir.ces.dto.ApiResponse;
 import org.amir.ces.dto.CreateTicketDto;
 import org.amir.ces.dto.RespondToTicketDto;
@@ -63,5 +64,21 @@ public class TicketController {
 
         List<Ticket> tickets = ticketService.getDedicatedTickets(email, role);
         return ResponseEntity.ok(ApiResponse.success(tickets, "Tickets retrieved successfully"));
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @GetMapping("/analytics")
+    public ResponseEntity<ApiResponse<AnalyticsResponseDto>> getTicketAnalytics(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        String email = userDetails.getUsername();
+        // Retrieve roles from the user's authorities
+        String role = userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(Object::toString)
+                .orElse("UNKNOWN");
+
+        AnalyticsResponseDto analyticsResponseDto = ticketService.getTicketAnalytics(email, role);
+        return ResponseEntity.ok(ApiResponse.success(analyticsResponseDto, "Ticket analytics retrieved successfully"));
     }
 }

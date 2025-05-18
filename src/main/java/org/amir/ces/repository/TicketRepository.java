@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface TicketRepository extends JpaRepository<Ticket, Long> {
     Ticket findByReferenceNumber(String referenceNumber);
+    List<Ticket> findByAssignedAgencyId(Long agencyId);
 
     @Query("SELECT t FROM Ticket t WHERE t.tag.id IN :tagIds")
     List<Ticket> findTicketsByTagIds(@Param("tagIds") List<Long> tagIds);
