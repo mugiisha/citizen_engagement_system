@@ -33,6 +33,6 @@ public class Tag {
 
     @OneToMany(mappedBy = "tag")
     @Builder.Default
-    @JsonManagedReference // Prevent infinite recursion during serialization
+    @JsonBackReference
     private List<Ticket> tickets = new ArrayList<>();
 }

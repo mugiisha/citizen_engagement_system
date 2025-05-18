@@ -1,6 +1,7 @@
 package org.amir.ces.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -50,7 +51,7 @@ public class Ticket {
 
     @ManyToOne
     @JoinColumn(name = "tag_id")
-    @JsonBackReference // Prevents infinite recursion
+    @JsonManagedReference// Prevent infinite recursion during serialization
     private Tag tag;
 
     @Column(columnDefinition = "TEXT")

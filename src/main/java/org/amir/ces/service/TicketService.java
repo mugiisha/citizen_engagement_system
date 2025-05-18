@@ -98,6 +98,25 @@ public class TicketService {
         return savedTicket;
     }
 
+    public List<Ticket> getDedicatedTickets(String email, String role) {
+        Role userRole = Role.valueOf(role.split("_")[1]);
+
+        log.info("user role: {}", userRole);
+
+        if(Role.ADMIN.equals(userRole)){
+            return ticketRepository.findAll();
+        }
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        List<Long> tagIds = user.getAgency().getTags().stream()
+                .map(Tag::getId)
+                .toList();
+
+        return ticketRepository.findTicketsByTagIds(tagIds);
+    }
+
 
     public Ticket getTicketById(Long id) {
         return ticketRepository.findById(id)

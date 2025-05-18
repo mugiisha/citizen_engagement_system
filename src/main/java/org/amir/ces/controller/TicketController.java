@@ -34,11 +34,6 @@ public class TicketController {
         return ResponseEntity.ok(ApiResponse.success(ticket, "Ticket retrieved successfully"));
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping()
-    public ResponseEntity<ApiResponse<List<Ticket>>> getAllTickets() {
-        return ResponseEntity.ok(ApiResponse.success(ticketService.getAllTickets(), "Tickets retrieved successfully"));
-    }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @PutMapping("/{id}/respond")
@@ -53,4 +48,20 @@ public class TicketController {
         return ResponseEntity.ok(ApiResponse.success(ticket, "Ticket responded successfully"));
     }
 
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    @GetMapping()
+    public ResponseEntity<ApiResponse<List<Ticket>>> getDedicatedTickets(
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        String email = userDetails.getUsername();
+        // Retrieve roles from the user's authorities
+        String role = userDetails.getAuthorities().stream()
+                .findFirst()
+                .map(Object::toString)
+                .orElse("UNKNOWN");
+
+        List<Ticket> tickets = ticketService.getDedicatedTickets(email, role);
+        return ResponseEntity.ok(ApiResponse.success(tickets, "Tickets retrieved successfully"));
+    }
 }
