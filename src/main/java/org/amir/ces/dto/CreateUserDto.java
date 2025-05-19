@@ -24,5 +24,5 @@ public class CreateUserDto {
     private Role role;
     @NotNull(message = "Agency is required")
     @NotBlank(message = "Agency cannot be blank")
-    private Integer agencyId;
+    private String agency;
 }

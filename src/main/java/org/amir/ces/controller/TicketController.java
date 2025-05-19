@@ -2,10 +2,7 @@ package org.amir.ces.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.amir.ces.dto.AnalyticsResponseDto;
-import org.amir.ces.dto.ApiResponse;
-import org.amir.ces.dto.CreateTicketDto;
-import org.amir.ces.dto.RespondToTicketDto;
+import org.amir.ces.dto.*;
 import org.amir.ces.model.Ticket;
 import org.amir.ces.service.TicketService;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +27,8 @@ public class TicketController {
 
 
     @GetMapping("/{referenceNumber}")
-    public ResponseEntity<ApiResponse<Ticket>> getTicket(@PathVariable String referenceNumber) {
-        Ticket ticket = ticketService.getTicketByReferenceNumber(referenceNumber);
+    public ResponseEntity<ApiResponse<TicketResponseDto>> getTicket(@PathVariable String referenceNumber) {
+        TicketResponseDto ticket = ticketService.getTicketByReferenceNumber(referenceNumber);
         return ResponseEntity.ok(ApiResponse.success(ticket, "Ticket retrieved successfully"));
     }
 
@@ -52,7 +49,7 @@ public class TicketController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
     @GetMapping()
-    public ResponseEntity<ApiResponse<List<Ticket>>> getDedicatedTickets(
+    public ResponseEntity<ApiResponse<List<TicketResponseDto>>> getDedicatedTickets(
             @AuthenticationPrincipal UserDetails userDetails) {
 
         String email = userDetails.getUsername();
@@ -62,7 +59,7 @@ public class TicketController {
                 .map(Object::toString)
                 .orElse("UNKNOWN");
 
-        List<Ticket> tickets = ticketService.getDedicatedTickets(email, role);
+        List<TicketResponseDto> tickets = ticketService.getDedicatedTickets(email, role);
         return ResponseEntity.ok(ApiResponse.success(tickets, "Tickets retrieved successfully"));
     }
 

@@ -32,7 +32,7 @@ public class UserService {
             throw new BadRequestException("Email already exists");
         }
 
-        Agency agency = agencyService.getAgencyById(registerUserDto.getAgencyId());
+        Agency agency = agencyService.getAgencyByName(registerUserDto.getAgency());
 
         User user = User.builder()
                 .firstName(registerUserDto.getFirstName())

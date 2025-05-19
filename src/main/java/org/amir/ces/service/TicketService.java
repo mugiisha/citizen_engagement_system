@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.amir.ces.dto.AnalyticsResponseDto;
 import org.amir.ces.dto.CreateTicketDto;
 import org.amir.ces.dto.RespondToTicketDto;
+import org.amir.ces.dto.TicketResponseDto;
 import org.amir.ces.exception.BadRequestException;
 import org.amir.ces.exception.ResourceNotFoundException;
 import org.amir.ces.model.*;
@@ -36,10 +37,13 @@ public class TicketService {
     @Transactional
     public Ticket createTicket(CreateTicketDto createTicketDto){
         String referenceNumber = generateReferenceNumber();
-        Agency agency = agencyService.getAgencyById(createTicketDto.getAgencyId());
+        Agency agency = agencyService.getAgencyByName(createTicketDto.getAgency());
 
-        Tag tag = tagRepository.findById(createTicketDto.getTagId())
-                .orElseThrow(() -> new ResourceNotFoundException("Tag not found"));
+        Tag tag = tagRepository.findByName(createTicketDto.getTag());
+
+        if(tag == null){
+            throw new BadRequestException("Tag not found");
+        }
 
         if(createTicketDto.getNotifyUser() == null){
             createTicketDto.setNotifyUser(false);
@@ -99,13 +103,16 @@ public class TicketService {
         return savedTicket;
     }
 
-    public List<Ticket> getDedicatedTickets(String email, String role) {
+    public List<TicketResponseDto> getDedicatedTickets(String email, String role) {
         Role userRole = Role.valueOf(role.split("_")[1]);
 
         log.info("user role: {}", userRole);
 
         if(Role.ADMIN.equals(userRole)){
-            return ticketRepository.findAll();
+            List<Ticket> tickets =ticketRepository.findAll();
+            return tickets.stream()
+                    .map(this::convertToResponseDto)
+                    .toList();
         }
 
         User user = userRepository.findByEmail(email)
@@ -115,7 +122,10 @@ public class TicketService {
                 .map(Tag::getId)
                 .toList();
 
-        return ticketRepository.findTicketsByTagIds(tagIds);
+        List<Ticket> tickets = ticketRepository.findTicketsByTagIds(tagIds);
+        return tickets.stream()
+                .map(this::convertToResponseDto)
+                .toList();
     }
 
 
@@ -124,16 +134,19 @@ public class TicketService {
                 .orElseThrow(() -> new RuntimeException("Ticket not found"));
     }
 
-    public List<Ticket> getAllTickets() {
-        return ticketRepository.findAll();
+    public List<TicketResponseDto> getAllTickets() {
+        List<Ticket> tickets = ticketRepository.findAll();
+        return tickets.stream()
+                .map(this::convertToResponseDto)
+                .toList();
     }
 
-    public Ticket getTicketByReferenceNumber(String referenceNumber) {
+    public TicketResponseDto getTicketByReferenceNumber(String referenceNumber) {
         Ticket ticket = ticketRepository.findByReferenceNumber(referenceNumber);
         if (ticket == null) {
             throw new ResourceNotFoundException("Ticket not found");
         }
-        return ticket;
+        return convertToResponseDto(ticket);
     }
 
     public AnalyticsResponseDto getTicketAnalytics(String email, String role) {
@@ -191,6 +204,24 @@ public class TicketService {
                 .totalComplaintTickets(totalComplaintTickets)
                 .totalFeedbackTickets(totalFeedbackTickets)
                 .totalAddressedTickets(totalAddressedTickets)
+                .build();
+    }
+
+    public TicketResponseDto convertToResponseDto(Ticket ticket) {
+        return TicketResponseDto.builder()
+                .id(ticket.getId())
+                .referenceNumber(ticket.getReferenceNumber())
+                .issuerName(ticket.getIssuerName())
+                .issuerEmail(ticket.getIssuerEmail())
+                .title(ticket.getTitle())
+                .description(ticket.getDescription())
+                .type(ticket.getType())
+                .tag(ticket.getTag().getName())
+                .assignedAgency(ticket.getAssignedAgency().getName())
+                .response(ticket.getResponse())
+                .status(ticket.getStatus())
+                .createdAt(ticket.getCreatedAt())
+                .resolvedAt(ticket.getResolvedAt())
                 .build();
     }
 }

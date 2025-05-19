@@ -15,9 +15,9 @@ public class CreateTicketDto {
     @NotNull(message = "type is required")
     private TicketType type;
     @NotNull(message = "Agency id is required")
-    private Long agencyId;
+    private String agency;
     @NotNull(message = "Tag id is required")
-    private Long tagId;
+    private String tag;
     private Boolean notifyUser;
 
 }

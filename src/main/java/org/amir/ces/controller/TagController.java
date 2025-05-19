@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.amir.ces.dto.ApiResponse;
 import org.amir.ces.dto.CreateTagDto;
+import org.amir.ces.dto.TagResponseDto;
 import org.amir.ces.model.Tag;
 import org.amir.ces.repository.TagRepository;
 import org.amir.ces.service.TagService;
@@ -29,8 +30,8 @@ public class TagController {
     }
 
     @GetMapping()
-    public ResponseEntity<ApiResponse<List<Tag>>> getAllTags() {
-        List<Tag> tags = tagService.getAllTags();
+    public ResponseEntity<ApiResponse<List<TagResponseDto>>> getAllTags() {
+        List<TagResponseDto> tags = tagService.getAllTags();
         return ResponseEntity.ok(ApiResponse.success(tags, "Tags retrieved successfully"));
     }
 

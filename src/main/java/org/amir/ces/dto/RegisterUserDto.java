@@ -18,5 +18,5 @@ public class RegisterUserDto {
     @NotNull(message = "Role must not be null")
     private Role role;
     @NotNull(message = "Agency id must not be null")
-    private long agencyId;
+    private String agency;
 }

@@ -2,6 +2,7 @@ package org.amir.ces.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.amir.ces.dto.AgencyResponseDto;
 import org.amir.ces.dto.CreateAgencyDto;
 import org.amir.ces.exception.BadRequestException;
 import org.amir.ces.exception.ResourceNotFoundException;
@@ -27,8 +28,15 @@ public class AgencyService {
                 .orElseThrow(() -> new ResourceNotFoundException("Agency not found"));
     }
 
-    public List<Agency> getAllAgencies() {
-        return agencyRepository.findAll();
+    public List<AgencyResponseDto> getAllAgencies() {
+
+        List<Agency> agencies = agencyRepository.findAll();
+        List<AgencyResponseDto> agencyResponseDtos = new ArrayList<>();
+        for (Agency agency : agencies) {
+            AgencyResponseDto agencyResponseDto = convertToResponseDto(agency);
+            agencyResponseDtos.add(agencyResponseDto);
+        }
+        return agencyResponseDtos;
     }
 
     public Agency createAgency(CreateAgencyDto createAgencyDto) {
@@ -98,6 +106,15 @@ public class AgencyService {
                     .build();
             agencyRepository.save(adminAgency);
         }
+    }
+
+    public AgencyResponseDto convertToResponseDto(Agency agency) {
+        return AgencyResponseDto.builder()
+                .id(agency.getId())
+                .name(agency.getName())
+                .description(agency.getDescription())
+                .createdAt(agency.getCreatedAt().toString())
+                .build();
     }
 
 }

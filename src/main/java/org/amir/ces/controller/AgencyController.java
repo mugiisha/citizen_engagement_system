@@ -2,6 +2,7 @@ package org.amir.ces.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.amir.ces.dto.AgencyResponseDto;
 import org.amir.ces.dto.ApiResponse;
 import org.amir.ces.dto.CreateAgencyDto;
 import org.amir.ces.model.Agency;
@@ -47,8 +48,8 @@ public class AgencyController {
     }
 
     @GetMapping()
-    public ResponseEntity<ApiResponse<List<Agency>>> getAllAgencies() {
-        List<Agency> agencies = agencyService.getAllAgencies();
+    public ResponseEntity<ApiResponse<List<AgencyResponseDto>>> getAllAgencies() {
+        List<AgencyResponseDto> agencies = agencyService.getAllAgencies();
         return ResponseEntity.ok(ApiResponse.success(agencies, "Agencies retrieved successfully"));
     }
 }

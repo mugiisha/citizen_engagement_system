@@ -2,6 +2,7 @@ package org.amir.ces.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.amir.ces.dto.TagResponseDto;
 import org.amir.ces.exception.BadRequestException;
 import org.amir.ces.model.Tag;
 import org.amir.ces.repository.TagRepository;
@@ -48,7 +49,17 @@ public class TagService {
         tagRepository.delete(tag);
     }
 
-    public List<Tag> getAllTags() {
-        return tagRepository.findAll();
+    public List<TagResponseDto> getAllTags() {
+        List<Tag> tags = tagRepository.findAll();
+        return tags.stream()
+                .map(this::convertToResponseDto)
+                .toList();
+    }
+
+    public TagResponseDto convertToResponseDto(Tag tag) {
+        return TagResponseDto.builder()
+                .id(tag.getId())
+                .name(tag.getName())
+                .build();
     }
 }
