@@ -219,6 +219,7 @@ public class TicketService {
                 .tag(ticket.getTag().getName())
                 .assignedAgency(ticket.getAssignedAgency().getName())
                 .response(ticket.getResponse())
+                .respondedBy(ticket.getRespondedBy() != null ? ticket.getRespondedBy().getFirstName() + " " + ticket.getRespondedBy().getLastName() : null)
                 .status(ticket.getStatus())
                 .createdAt(ticket.getCreatedAt())
                 .resolvedAt(ticket.getResolvedAt())
